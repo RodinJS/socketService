@@ -12,6 +12,10 @@ const accessTokenSchema = new Schema(
         appSecret: {
             type: String,
             default: UniqueID.generate
+        },
+        name: {
+            type: String,
+            required: true
         }
     }
 );
