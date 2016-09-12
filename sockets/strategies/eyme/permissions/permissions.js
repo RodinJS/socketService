@@ -1,9 +1,7 @@
-"use strict";
-
-const spacePermission = (socket, data, next) => {
+const sharingPermission = (socket, data, next) => {
     next();
 };
 
 module.exports = {
-    space: spacePermission
+    sharing: sharingPermission
 };

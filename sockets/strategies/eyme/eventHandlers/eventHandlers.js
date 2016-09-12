@@ -2,8 +2,8 @@
 
 const controller = require("../../../controller");
 
-const spaceEventHandler = function () {
-    const shareData = (namespace, socket, roomId, data, next) => {
+const sharingEventHandler = function () {
+    const dataHandler = (namespace, socket, roomId, data, next) => {
         namespace.sendToRoom(roomId, "data", {
             channel: data.channel,
             data: {
@@ -14,10 +14,10 @@ const spaceEventHandler = function () {
     };
 
     return {
-        shareData: shareData
+        data: dataHandler
     }
 };
 
 module.exports = {
-    space: new spaceEventHandler()
+    sharing: new sharingEventHandler()
 };
