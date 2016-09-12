@@ -14,6 +14,8 @@ With body should provided info, appId and appSecret.
 | appId         | Required      | String   | App Id      |
 | appSecret     | Required      | String   | App Secret  |
 
+Here is curl example
+
 ```sh
 curl -H "Content-Type: application/json" -X POST -d 
 '{
