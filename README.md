@@ -3,7 +3,7 @@
 ## API
 
 For each new connection you must send a request to the service.
-With body you need to provide: info, appId and appSecret.
+With the request body you need to provide: info, appId and appSecret.
 
 
 | field         | R/O           | Type     | Description |
