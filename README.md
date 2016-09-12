@@ -23,7 +23,7 @@ curl -H "Content-Type: application/json" -X POST -d
     },
     "appId": "e841022dc010d2df",
     "appSecret": "7876adbe-85f9-f8b9-e467-22aca935"
-}' http://localhost:3000/api/login
+}' http://<socket-server-ip>:1234/api/v1/connect
 ```
 
 
