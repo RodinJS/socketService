@@ -12,7 +12,7 @@ router.post('/connect', (req, res) => {
     const token = UniqueID.generate();
 
     App.findOne({appId: req.body.appId, appSecret: req.body.appSecret}, (err, app) => {
-        if (err) {
+        if (err || !app) {
             return emitter.sendCustomError(new CustomErrors.InvalisAppIdOrSecret());
         }
 
