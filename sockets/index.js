@@ -94,8 +94,6 @@ const onConnection = socket => {
         let roomId = data.channel + "_r_" + data.room;
         controller.unsubscribe(data.channel, roomId, socket.uid);
         users.remove(socket.uid);
-        socket.leave(roomId);
-        socket.leave("uid_" + socket.uid);
         namespace.sendToRoom(roomId, "userleave", {
             channel: data.channel,
             data: {
@@ -103,6 +101,8 @@ const onConnection = socket => {
                 room: controller.getRoom(data.channel, roomId)
             }
         });
+        socket.leave(roomId, () => {});
+        socket.leave("uid_" + socket.uid, () => {});
     });
 
 
@@ -111,6 +111,7 @@ const onConnection = socket => {
      * Unsubscribe user from all channels
      */
     socket.on('disconnect', function () {
+        socket.leave("uid_" + socket.uid, () => {});
         let roomsId = controller.unsubscribeFromAllRooms(socket.uid);
         for (let i = 0; i < roomsId.length; i++) {
             namespace.sendToRoom(roomsId[i].roomId, "userleave", {
@@ -120,6 +121,7 @@ const onConnection = socket => {
                     room: roomsId[i].room
                 }
             });
+            socket.leave(roomsId[i].roomId, () => {});
         }
     });
 
