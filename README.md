@@ -3,10 +3,8 @@
 ## API
 
 For each new connection you must request to service.
-With body should provided info, appId and appSecret.
+With body must provide: info, appId and appSecret.
 
-**appId**: _Required_ your appId
-**appSecret**: _Required_ your appSecret
 
 | field         | R/O           | Type     | Description |
 | ------------- |:-------------:| --------:| -----------:|
@@ -14,7 +12,7 @@ With body should provided info, appId and appSecret.
 | appId         | Required      | String   | App Id      |
 | appSecret     | Required      | String   | App Secret  |
 
-Here is curl example
+Here is ```curl``` example
 
 ```sh
 curl -H "Content-Type: application/json" -X POST -d 
@@ -31,7 +29,7 @@ curl -H "Content-Type: application/json" -X POST -d
 
 ## Apps
 
-Each app have appId and appSecret, which are required for connecting with service.
+Each app has appId and appSecret, which are required for connecting with service.
 
 #### Create new app
 
