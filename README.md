@@ -2,7 +2,7 @@
 
 ## API
 
-For each new connection you must request to service.
+For each new connection you must send a request to the service.
 With body must provide: info, appId and appSecret.
 
 
