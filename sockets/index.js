@@ -1,11 +1,11 @@
-const async = require('async');
-let io = require('socket.io');
-
-const controller = require("./controller");
-const users = require("../routes/users");
+const io = require('socket.io');
+const controller = require('./controller');
+const users = require('../routes/users');
+const Logger = require('../logger/Logger');
 
 let strategy;
 let namespace;
+let logger = new Logger("sockets/sockets.log", false);
 
 module.exports.init = (server, _strategy) => {
     controller.deserialize();
@@ -20,7 +20,7 @@ module.exports.init = (server, _strategy) => {
 };
 
 const onConnection = socket => {
-    console.log("Connected: " + socket.id);
+    logger.info("Connected: " + socket.id);
     users.setSocket(socket.uid);
 
     socket.join('uid_' + socket.userId);
@@ -103,6 +103,7 @@ const onConnection = socket => {
         });
         socket.leave(roomId, () => {});
         socket.leave("uid_" + socket.uid, () => {});
+        logger.info("Disconnected: " + socket.id);
     });
 
 

@@ -1,8 +1,7 @@
-"use strict";
-
 const path = require("path");
-const users = require("./users");
+const requestLogger = require('../logger/requestLoggerMiddlewear');
 
-module.exports = (app) => {
+module.exports = app => {
+    app.use('/', requestLogger);
     app.use('/api/v1', require('./api.v1/apiRouter'));
 };

@@ -1,9 +1,9 @@
 const winston = require('winston');
 const fs = require('fs-extra');
 const path = require('path');
-const configs = require('./config.js');
+const configs = require('../config/config');
 
-module.exports = class Logger {
+module.exports = class Logger extends winston.Logger {
 
     /**
      * @param {string} _path
@@ -22,15 +22,15 @@ module.exports = class Logger {
             new winston.transports.File({filename: logPath})
         ];
 
-        if(_console !== false && configs.envirement.development) {
+        if (_console !== false && configs.envirement.development) {
             transports.push(new winston.transports.Console());
         }
 
-        let logger = new winston.Logger({
+        super({
             transports: transports,
             maxsize: configs.log.maxsize
         });
 
-        logger.info(`Logs started at ${Date.now()}`);
+        this.info(`Logs started at ${Date.now()}`);
     };
 };
