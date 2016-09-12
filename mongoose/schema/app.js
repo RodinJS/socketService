@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const configs = require('../../config/config.js');
-const UniqueID = require('../../utils/UniqueID.js');
+const configs = require('../../config/config');
+const UniqueID = require('../../utils/UniqueID');
 const Schema = mongoose.Schema;
 
 const accessTokenSchema = new Schema(
@@ -16,6 +16,10 @@ const accessTokenSchema = new Schema(
         name: {
             type: String,
             required: true
+        },
+        allowedIps: {
+            type: [String],
+            default: []
         }
     }
 );

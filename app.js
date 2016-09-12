@@ -1,22 +1,22 @@
-const express = require('express');
-const configs = require('./config/config.js');
-const cors = require('cors');
-const bodyParser = require('body-parser');
+const express = require("express");
+const SIGINT = require("./utils/sigint");
+const bodyParser = require("body-parser");
+const helmet = require("helmet");
+const cors = require("cors");
 const methodOverride = require('method-override');
-const path = require('path');
-const helmet = require('helmet');
-const morgan = require('morgan');
+const morgan = require("morgan");
+const path = require("path");
+const audioStream = require("./utils/audioStream");
+const configs = require('./config/config');
+const async = require('async');
+
 const app = express();
 
-let dbConnected = false;
-
+/**
+ * setup middlewears
+ */
 app.use(cors());
-app.use(helmet({
-    frameguard: {
-        action: 'allow-from',
-        domain: ''
-    }
-}));
+app.use(helmet());
 app.use(bodyParser.json({limit: '5mb'}));
 app.use(bodyParser.json({type: 'application/vnd.api+json'}));
 app.use(bodyParser.urlencoded({extended: true}));
@@ -27,24 +27,31 @@ if (configs.envirement.development) {
     app.use(morgan("dev"));
 }
 
-let startServer = () => {
-    if (!dbConnected) {
-        return;
+const connectDB = cb => {
+    const connection = require('./mongoose/connection');
+    connection.once('open', () => {
+        console.log('DB connected');
+        require('./mongoose/models')(connection);
+        cb();
+    })
+};
+
+async.parallel(
+    [
+        connectDB,
+        audioStream.init
+    ],
+    err => {
+        if (err) {
+            console.log(err);
+            process.exit(0);
+        }
+
+        require("./routes/setupRoutes")(app);
+
+        const server = app.listen(configs.server.port, '0.0.0.0', () => {
+            console.log(`Server running on port ${configs.server.port}`);
+            require("./sockets").init(server, require("./sockets/strategies/eyme/eymeStrategy").strategy);
+        });
     }
-
-    require('./routes/setupRoutes.js')(app);
-    app.listen(configs.server.port, () => {
-        console.log('server start at port 1234');
-    });
-};
-
-let connectDB = () => {
-    const dbConnection = require('./mongoose/connection.js');
-    dbConnection.once('open', () => {
-        dbConnected = true;
-        require('./mongoose/models.js')(dbConnection);
-        startServer();
-    });
-};
-
-connectDB();
+);

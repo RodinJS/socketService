@@ -1,36 +1,28 @@
-module.exports = exports = function pagedFindPlugin(schema)
-{
-    schema.statics.pagedFind = function (options, cb)
-    {
+module.exports = exports = function pagedFindPlugin(schema) {
+    schema.statics.pagedFind = function (options, cb) {
         var thisSchema = this;
 
-        if (!options.filters)
-        {
+        if (!options.filters) {
             options.filters = {};
         }
 
-        if (!options.keys)
-        {
+        if (!options.keys) {
             options.keys = '';
         }
 
-        if (!options.limit)
-        {
+        if (!options.limit) {
             options.limit = 20;
         }
 
-        if (!options.page)
-        {
+        if (!options.page) {
             options.page = 1;
         }
 
-        if (!options.sort)
-        {
+        if (!options.sort) {
             options.sort = {};
         }
 
-        if(!options.population)
-        {
+        if (!options.population) {
             options.population = {};
         }
 
@@ -51,28 +43,24 @@ module.exports = exports = function pagedFindPlugin(schema)
             }
         };
 
-        var countResults = function (callback)
-        {
-            thisSchema.count(options.filters, function (err, count)
-            {
+        var countResults = function (callback) {
+            thisSchema.count(options.filters, function (err, count) {
                 output.items.total = count;
                 callback(null, 'done counting');
             });
         };
 
-        var getResults = function (callback)
-        {
+        var getResults = function (callback) {
             var query = thisSchema.find(options.filters, options.keys);
-            if(options.population.criteria) {
+            if (options.population.criteria) {
                 options.population.model = options.population.model || '';
                 query = thisSchema.find(options.filters, options.keys).populate(options.population.criteria, options.population.fields, options.population.model);
             }
             query.skip((options.page - 1) * options.limit);
             query.limit(options.limit);
             query.sort(options.sort);
-            query.exec(function (err, results)
-            {
-                if(err) {
+            query.exec(function (err, results) {
+                if (err) {
                     return callback(err);
                 }
                 output.data = results;
@@ -84,21 +72,17 @@ module.exports = exports = function pagedFindPlugin(schema)
                 countResults,
                 getResults
             ],
-            function (err, results)
-            {
-                if (err)
-                {
+            function (err, results) {
+                if (err) {
                     cb(err, null);
                 }
 
-                //final paging math
                 output.pages.total = Math.ceil(output.items.total / options.limit);
                 output.pages.next = ((output.pages.current + 1) > output.pages.total ? 0 : output.pages.current + 1);
                 output.pages.hasNext = (output.pages.next !== 0);
                 output.pages.prev = output.pages.current - 1;
                 output.pages.hasPrev = (output.pages.prev !== 0);
-                if (output.items.end > output.items.total)
-                {
+                if (output.items.end > output.items.total) {
                     output.items.end = output.items.total;
                 }
 

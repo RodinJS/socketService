@@ -1,63 +1,70 @@
-const fs = require('fs');
-const path = require('path');
-const jsonPath = path.join(process.cwd(), "app/sockets/controller.json");
+"use strict";
 
-class Controller {
-    constructor() {
-        this.channels = {};
-    }
+const fs = require("fs");
+const path = require("path");
+var jsonPath = path.join(process.cwd(), "app/sockets/controller.json");
+
+/**
+ * Class Controller
+ *
+ * Here saves all info about socket connection
+ *
+ * @constructor
+ */
+function Controller() {
+    var channels = {};
 
     /**
      * subscribe user to room
-     * @param {string} channel
-     * @param {string} room
-     * @param {string} uid
-     * @param {Object} userInfo
+     * @param channel
+     * @param room
+     * @param uid
+     * @param userInfo
      */
-    subscribe = (channel, room, uid, userInfo) => {
-        if (!this.channels[channel]) {
-            this.channels[channel] = {};
+    this.subscribe = (channel, room, uid, userInfo) => {
+        if (!channels[channel]) {
+            channels[channel] = {};
         }
 
-        if (!this.channels[channel][room]) {
-            this.channels[channel][room] = {
+        if (!channels[channel][room]) {
+            channels[channel][room] = {
                 subscribers: [],
                 state: null
             };
         }
 
         if (this.userIndexInRoom(channel, room, uid) === -1) {
-            this.channels[channel][room].subscribers.push({uid: uid, user: userInfo});
+            channels[channel][room].subscribers.push({uid: uid, user: userInfo});
         }
     };
 
     /**
      * unsubscribe user from room
-     * @param {string} channel
-     * @param {string} room
-     * @param {string} uid
+     * @param channel
+     * @param room
+     * @param uid
      */
-    unsubscribe = (channel, room, uid) => {
-        if (this.channels[channel] && this.channels[channel][room]) {
+    this.unsubscribe = (channel, room, uid) => {
+        if (channels && channels[channel] && channels[channel][room]) {
             let index = this.userIndexInRoom(channel, room, uid);
             if (index !== -1) {
-                this.channels[channel][room].subscribers.splice(index, 1);
+                channels[channel][room].subscribers.splice(index, 1);
             }
         }
     };
 
     /**
      * unsubscribe user from all rooms
-     * @param {string} uid
+     * @param uid
      * @return {object}
      */
-    unsubscribeFromAllRooms = uid => {
+    this.unsubscribeFromAllRooms = uid => {
         let retData = [];
-        for (let c in this.channels) {
-            for (let r in this.channels[c]) {
+        for (let c in channels) {
+            for (let r in channels[c]) {
                 let index = this.userIndexInRoom(c, r, uid);
                 if (index !== -1) {
-                    this.channels[c][r].subscribers.splice(index, 1);
+                    channels[c][r].subscribers.splice(index, 1);
                     retData.push({
                         channel: c,
                         roomId: r,
@@ -66,7 +73,6 @@ class Controller {
                 }
             }
         }
-
         return retData;
     };
 
@@ -74,15 +80,15 @@ class Controller {
      * get channel
      * @param channel
      */
-    getChannel = channel => this.channels[channel];
+    this.getChannel = channel => channels[channel];
 
     /**
      * get room
      * @param channel
      * @param room
      */
-    getRoom = (channel, room) => {
-        return this.channels[channel][room];
+    this.getRoom = (channel, room) => {
+        return channels[channel][room];
     };
 
     /**
@@ -92,9 +98,9 @@ class Controller {
      * @param uid
      * @returns {number} user index in room, -1 if user is not subscribed to room
      */
-    userIndexInRoom = (channel, room, uid) => {
-        for (let i = 0; i < this.channels[channel][room].subscribers.length; i++) {
-            if (this.channels[channel][room].subscribers[i].uid.toString() === uid.toString()) {
+    this.userIndexInRoom = (channel, room, uid) => {
+        for (let i = 0; i < channels[channel][room].subscribers.length; i++) {
+            if (channels[channel][room].subscribers[i].uid.toString() === uid.toString()) {
                 return i;
             }
         }
@@ -107,11 +113,11 @@ class Controller {
      * read from file if exists
      * @returns {boolean}
      */
-    deserialize = () => {
+    this.deserialize = () => {
         try {
             fs.accessSync(jsonPath, fs.F_OK);
             var dump = fs.readFileSync(jsonPath);
-            this.channels = JSON.parse(dump).channels;
+            channels = JSON.parse(dump).channels;
             return true;
         } catch (err) {
             console.log("Controller dump does not exist, creating new one");
@@ -123,14 +129,17 @@ class Controller {
      * serialize channels
      * write to file
      */
-    serialize = () => {
+    this.serialize = () => {
         try {
             fs.writeFileSync(jsonPath, JSON.stringify({
                 date: Date.now(),
-                channels: this.channels
+                channels: channels
             }, null, 2));
         } catch (err) {
             console.log("Error while serializing socket controller", err);
         }
     };
 }
+
+const controller = new Controller();
+module.exports = controller;

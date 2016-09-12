@@ -1,7 +1,7 @@
 const winston = require('winston');
 const fs = require('fs-extra');
 const path = require('path');
-const configs = require('../config/config.js');
+const configs = require('./config.js');
 
 module.exports = class Logger {
 
