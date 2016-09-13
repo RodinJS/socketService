@@ -1,37 +1,19 @@
-"use strict";
+module.exports =  class Emitter extends EventEmitter {
+    constructor(req, res) {
+        super();
 
-const EventEmitter = require("events").EventEmitter;
+        this.req = req;
+        this.res = res;
 
-/**
- * constom event emitter to send responses
- * @param req request
- * @param res response
- * @constructor
- */
-function Emitter(req, res) {
-    let emiter = new EventEmitter();
-
-    let outcome = {
-        success: true,
-        data: {},
-        error: {
-            message: "",
-            code: 0
-        }
-    };
-
-    /**
-     * add listener to channel
-     * @param channel
-     * @param cb
-     */
-    this.on = (channel, cb) => emiter.on(channel, cb);
-
-    /**
-     * emit channel
-     * @param channel
-     */
-    this.emit = channel => emiter.emit(channel);
+        this.outcome = {
+            success: true,
+            data: {},
+            error: {
+                message: "",
+                code: 0
+            }
+        };
+    }
 
     /**
      * send response. Check if outcome is true send 200, else send 500 status,
@@ -39,22 +21,22 @@ function Emitter(req, res) {
      * @param data
      * @returns {*}
      */
-    this.sendResponse = (err, data) => {
+    sendResponse = (err, data) => {
         if (err) {
-            outcome.success = false;
-            outcome.error.message = err;
+            this.outcome.success = false;
+            this.outcome.error.message = err;
         }
         if (data) {
-            outcome.success = true;
-            outcome.data = data;
+            this.outcome.success = true;
+            this.outcome.data = data;
         }
 
-        if (outcome.success) {
-            res.status(200);
-            return res.json(outcome);
+        if (this.outcome.success) {
+            this.res.status(200);
+            return this.res.json(this.outcome);
         } else {
-            res.status(500);
-            return res.json(outcome);
+            this.res.status(err.status || 500);
+            return this.res.json(this.outcome);
         }
     };
 
@@ -63,54 +45,25 @@ function Emitter(req, res) {
      * @param key
      * @param data
      */
-    this.setData = (key, data) => {
-        outcome.success = true;
-        outcome.data[key] = data;
-    };
-
-    /**
-     * set outcome native error
-     * @param err
-     */
-    this.nativeError = err => {
-        outcome.success = false;
-        outcome.error = err;
-    };
-
-    /**
-     * send native error to client
-     * @param err
-     */
-    this.sendNativeError = err => {
-        outcome.error.code = 300;
-        this.sendResponse(err);
+    setData = (key, data) => {
+        this.outcome.success = true;
+        this.outcome.data[key] = data;
     };
 
     /**
      * send custom error to client
      * @param err
      */
-    this.sendCustomError = err => {
-        outcome.error.code = err.code;
+    sendError = err => {
+        this.outcome.error.code = err.code;
         this.sendResponse(err);
-    };
-
-    /**
-     * send validation error to client
-     * @param err
-     */
-    this.sendValidationError = err => {
-        outcome.error.code = 301;
-        this.sendResponse(err)
     };
 
     /**
      * send data to client
      * @param data
      */
-    this.sendData = data => {
+    sendData = data => {
         this.sendResponse(null, data);
     }
 }
-
-module.exports = Emitter;

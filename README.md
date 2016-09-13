@@ -7,7 +7,7 @@ With the request body you need to provide: info, appId and appSecret.
 
 
 | field         | R/O           | Type     | Description |
-| ------------- |:-------------:| --------:| -----------:|
+| ------------: |:-------------:| :-------:| :----------:|
 | info          | Optional      | Object   | Any Object  |
 | appId         | Required      | String   | App Id      |
 | appSecret     | Required      | String   | App Secret  |

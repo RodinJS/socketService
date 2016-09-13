@@ -19,7 +19,7 @@ function generate() {
 
         let table = new Table({
             head: ['Name', 'appId', 'appSecret'],
-            colWidths: [20, 20, 50]
+            colWidths: [20, 25, 50]
         });
 
         for(let app of apps) {
