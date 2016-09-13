@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
         }
 
         if(!app) {
-            return emitter.send(new CustomErrors.InvalisAppIdOrSecret());
+            return emitter.sendError(new CustomErrors.InvalisAppIdOrSecret());
         }
 
         req.app = app.toObject({virtuals: true});

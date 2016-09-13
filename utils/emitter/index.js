@@ -1,4 +1,6 @@
-module.exports =  class Emitter extends EventEmitter {
+const EventEmitter = require('events').EventEmitter;
+
+module.exports = class Emitter extends EventEmitter {
     constructor(req, res) {
         super();
 
@@ -21,7 +23,7 @@ module.exports =  class Emitter extends EventEmitter {
      * @param data
      * @returns {*}
      */
-    sendResponse = (err, data) => {
+    sendResponse(err, data) {
         if (err) {
             this.outcome.success = false;
             this.outcome.error.message = err;
@@ -45,7 +47,7 @@ module.exports =  class Emitter extends EventEmitter {
      * @param key
      * @param data
      */
-    setData = (key, data) => {
+    setData(key, data) {
         this.outcome.success = true;
         this.outcome.data[key] = data;
     };
@@ -54,7 +56,7 @@ module.exports =  class Emitter extends EventEmitter {
      * send custom error to client
      * @param err
      */
-    sendError = err => {
+    sendError(err) {
         this.outcome.error.code = err.code;
         this.sendResponse(err);
     };
@@ -63,7 +65,7 @@ module.exports =  class Emitter extends EventEmitter {
      * send data to client
      * @param data
      */
-    sendData = data => {
+    sendData(data) {
         this.sendResponse(null, data);
     }
-}
+};
