@@ -7,6 +7,10 @@ module.exports = (req, res, next) => {
     const appSecret = req.body.appSecret;
     const emitter = new Emitter(req, res);
 
+    if(!appId || !appSecret) {
+        return emitter.sendError(new CustomErrors.InvalidRequestData());
+    }
+
     App.findOne({appId: appId, appSecret: appSecret}, (err, app) => {
         if(err) {
             return emitter.sendError(err);

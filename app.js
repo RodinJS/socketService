@@ -30,7 +30,6 @@ if (configs.envirement.development) {
 const connectDB = cb => {
     const connection = require('./mongoose/connection');
     connection.once('open', () => {
-        console.log('DB connected');
         require('./mongoose/models')(connection);
         cb();
     })

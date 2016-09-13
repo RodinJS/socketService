@@ -26,7 +26,7 @@ module.exports = class Emitter extends EventEmitter {
     sendResponse(err, data) {
         if (err) {
             this.outcome.success = false;
-            this.outcome.error.message = err;
+            this.outcome.error = err;
         }
         if (data) {
             this.outcome.success = true;
@@ -35,9 +35,11 @@ module.exports = class Emitter extends EventEmitter {
 
         if (this.outcome.success) {
             this.res.status(200);
+            delete this.outcome.error;
             return this.res.json(this.outcome);
         } else {
             this.res.status(err.status || 500);
+            delete this.outcome.data;
             return this.res.json(this.outcome);
         }
     };
@@ -57,7 +59,7 @@ module.exports = class Emitter extends EventEmitter {
      * @param err
      */
     sendError(err) {
-        this.outcome.error.code = err.code;
+        this.outcome.error.code = err.code || 500;
         this.sendResponse(err);
     };
 
