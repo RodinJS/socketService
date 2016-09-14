@@ -39,6 +39,30 @@ function Controller() {
     };
 
     /**
+     * @param channel
+     * @param room
+     * @param uid
+     * @returns {boolean}
+     */
+    this.userJoinedRoom = (channel, room, uid) => {
+        if(!channels[channel]) {
+            return false;
+        }
+
+        if(!channels[channel][room]) {
+            return false;
+        }
+
+        for(let subscriber of channels[channel][room].subscribers) {
+            if(subscriber.uid === uid) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    /**
      * unsubscribe user from room
      * @param channel
      * @param room

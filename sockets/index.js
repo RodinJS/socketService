@@ -72,7 +72,6 @@ const onConnection = socket => {
             }
 
             let roomId = data.channel + "_r_" + data.room;
-            controller.subscribe(data.channel, roomId, socket.uid, socket.user);
 
             socket.join(roomId);
             namespace.sendToRoom(roomId, "userenter", {

@@ -2,6 +2,8 @@ const router = require('express').Router();
 const Emitter = require('../../utils/emitter');
 const UniqueID = require('../../utils/UniqueID');
 const users = require('../users');
+const CustomErrors = require('../../utils/errors');
+const controller = require('../../sockets/controller');
 
 const MongoConnection = require('../../mongoose/connection');
 const App = MongoConnection.model('App');
@@ -47,6 +49,7 @@ const App = MongoConnection.model('App');
  *              }
  *              "token": "431fbf87-a064-e4a8-c7c1-927e9015"
  *          }
+ *      }
  *
  *
  * @apiError InvalidAppIdOrSecret
@@ -85,6 +88,78 @@ router.post('/connect', (req, res) => {
         user: user,
         token: token
     });
+});
+
+
+/**
+ * @api {post} /api/v1/subscribe Request User Subscribe to room
+ * @apiName Subscribe User
+ * @apiGroup Connect
+ *
+ * @apiParam {String} appId Registered app id.
+ * @apiParam {String} appSecret Registered app secret.
+ * @apiParam {String} channel Channel id.
+ * @apiParam {String} room Room id.
+ * @apiParam {String} token User token for sockets.
+ *
+ * @apiExample {curl} Example usage:
+ *      curl -H "Content-Type: application/json" -X POST -d
+ *      '{
+ *          "token": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx"
+ *          "channel": "chat",
+ *          "room": "xxxx-xxxx-xxxx",
+ *          "appId": "e841022dc010d2df",
+ *          "appSecret": "7876adbe-85f9-f8b9-e467-22aca935"
+ *      }' http://127.0.0.1:1234/api/v1/subscribe
+ *
+ *
+ * @apiSuccess {Boolean} success User subscribed successfully.
+ *
+ * @apiSuccessExample {json} Success-Response
+ *     200 OK
+ *     {
+ *          "success": true
+ *     }
+ *
+ *
+ * @apiError InvalidAppIdOrSecret
+ * @apiErrorExample {json} Unauthorised:
+ *      401 Unauthorised
+ *      {
+ *          "success": false
+ *          "error": {
+ *              "message": "Invalid appId or appSecret"
+ *              "status": 401
+ *              "timestamp": 1473756023136
+ *              "type": "Authorisation Error"
+ *          }
+ *      }
+ *
+ * @apiErrorExample {json} Bad Request:
+ *      400 Bad Request
+ *      {
+ *          "success": false
+ *          "error": {
+ *              "message": "Invalid request data. Check api documentation"
+ *              "status": 400
+ *              "timestamp": 1473756023136
+ *              "type": "Bad Request"
+ *          }
+ *      }
+ */
+router.post('/subscribe', (req, res) => {
+    const emitter = new Emitter(req, res);
+    const room = req.body.room;
+    const channel = req.body.channel;
+    const token = req.body.token;
+
+    if (!token || !room || !channel) {
+        return emitter.sendError(new CustomErrors.InvalidRequestData());
+    }
+
+    let roomId = channel + "_r_" + room;
+    controller.subscribe(channel, roomId, token, users.findUserByToken(token));
+    return emitter.sendData();
 });
 
 module.exports = router;
