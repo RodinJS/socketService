@@ -1,5 +1,5 @@
 class Users {
-    constructor() {
+    constructor () {
         let users = [];
         this.users = () => users;
 
@@ -8,7 +8,7 @@ class Users {
         }, 5000)
     };
 
-    add(token, info) {
+    add (token, info) {
         let users = this.users();
         if (this.findUserByToken(token)) {
             return;
@@ -37,7 +37,7 @@ class Users {
         return user;
     }
 
-    remove(token) {
+    remove (token) {
         let users = this.users();
         let index = this.findUserByToken(token);
         if (index !== -1) {
@@ -45,7 +45,7 @@ class Users {
         }
     };
 
-    findUserByToken(token) {
+    findUserByToken (token) {
         let users = this.users();
         if (token instanceof Array) {
             return token.map(t => {
@@ -66,12 +66,21 @@ class Users {
         return null;
     };
 
-    actionFromUser(token) {
+    findOrCreate (token, info) {
+        let user = this.findUserByToken(token);
+        if (user) {
+            return user;
+        }
+
+        return this.add(token, info);
+    }
+
+    actionFromUser (token) {
         let user = this.findUserByToken(token);
         user && (user.last_action = Date.now());
     };
 
-    setSocket(socket) {
+    setSocket (socket) {
         let users = this.users();
         for (let i = 0; i < users.length; i++) {
             if (users[i].token == socket.uid) {
@@ -80,7 +89,7 @@ class Users {
         }
     };
 
-    removeInactiveUsers() {
+    removeInactiveUsers () {
         let users = this.users();
         for (let i = 0; i < users.length; i++) {
             if (Date.now() - users[i].last_action > 5 * 60 * 1000 /* 5 minutes */) {

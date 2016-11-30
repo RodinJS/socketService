@@ -3,14 +3,14 @@
 const users = require("../../../../routes/users");
 
 module.exports = (socket, next) => {
-    var handshakeData = socket.handshake;
+    let handshakeData = socket.handshake;
 
     let token = handshakeData.query['x-access-token'];
     if (!token) {
         return next(new Error('Not authorized'));
     }
 
-    var user = users.findUserByToken(token);
+    let user = users.findOrCreate(token, info);
     if(!user) {
         return next(new Error("Token not found"));
     }
