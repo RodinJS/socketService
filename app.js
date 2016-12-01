@@ -1,56 +1,55 @@
-const express = require("express");
-const SIGINT = require("./utils/sigint");
-const bodyParser = require("body-parser");
-const helmet = require("helmet");
-const cors = require("cors");
-const methodOverride = require('method-override');
-const morgan = require("morgan");
-const path = require("path");
-const audioStream = require("./utils/audioStream");
-const configs = require('./config/config');
-const async = require('async');
+let app = require('http').createServer(handler);
+let io = require('socket.io')(app);
 
-const app = express();
-
-/**
- * setup middlewears
- */
-app.use(cors());
-app.use(helmet());
-app.use(bodyParser.json({limit: '5mb'}));
-app.use(bodyParser.json({type: 'application/vnd.api+json'}));
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(methodOverride('X-HTTP-Method-Override'));
-app.use(express.static(path.join(__dirname + '/public')));
-
-if (configs.envirement.development) {
-    app.use(morgan("dev"));
+function handler (req, res) {
+    res.writeHead(200);
+    res.end('hello');
 }
 
-const connectDB = cb => {
-    const connection = require('./mongoose/connection');
-    connection.once('open', () => {
-        require('./mongoose/models')(connection);
-        cb();
-    })
-};
+let rooms = {};
+function resolvedata (socket, data) {
+    return {
+        data,
+        from: socket.id
+    }
+}
 
-async.parallel(
-    [
-        connectDB,
-        audioStream.init
-    ],
-    err => {
-        if (err) {
-            console.log(err);
-            process.exit(0);
+io.on('connection', function (socket) {
+    socket.on('subscribe', function (data) {
+        if (!rooms[data.roomId]) {
+            rooms[data.roomId] = []
         }
 
-        require("./routes/setupRoutes")(app);
+        data.socketId = socket.id;
+        rooms[data.roomId].push(data);
+        socket.join(data.roomId);
+        io.to(data.roomId).emit('newConnection', resolvedata(socket, data));
+    });
 
-        const server = app.listen(configs.server.port, '0.0.0.0', () => {
-            console.log(`Server running on port ${configs.server.port}`);
-            require("./sockets").init(server, require("./sockets/strategies/eyme/eymeStrategy").strategy);
-        });
-    }
-);
+    socket.on('event', function (data) {
+        if (!rooms[data.roomId]) {
+            return socket.emit('error', 'unknown room');
+        }
+
+        io.to(data.roomId).emit(data.event, resolvedata(socket, data));
+    });
+
+    socket.on('disconnect', function () {
+        for(let i in rooms) {
+            let room = rooms[i];
+
+            for(let j = 0; i < room.length; j ++) {
+                if(room[j].socketId === socket.id) {
+                    let user = room.splice(j, 1);
+                    io.to(i).emit('logout', user);
+                }
+            }
+        }
+    });
+
+    socket.on('logout', function () {
+        socket.disconnect();
+    });
+});
+
+app.listen(1234);

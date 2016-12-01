@@ -142,10 +142,10 @@ const onConnection = socket => {
      * @returns {boolean}
      */
     const checkChannel = data => {
-        if (strategy.supportedChannels.indexOf(data.channel) === -1) {
-            socket.sendError(new Error("Unknown channel"));
-            return false;
-        }
+        // if (strategy.supportedChannels.indexOf(data.channel) === -1) {
+        //     socket.sendError(new Error("Unknown channel"));
+        //     return false;
+        // }
         return true;
     };
 
@@ -157,10 +157,10 @@ const onConnection = socket => {
      * @returns {boolean}
      */
     const checkAction = data => {
-        if (strategy.supportedActions[data.channel].indexOf(data.data.action) === -1) {
-            socket.sendError(new Error("Unknown action"));
-            return false;
-        }
+        // if (strategy.supportedActions[data.channel].indexOf(data.data.action) === -1) {
+        //     socket.sendError(new Error("Unknown action"));
+        //     return false;
+        // }
         return true;
     };
 };
