@@ -1,5 +1,7 @@
 # socketService
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/RodinJS/socketService.svg?token=bf75ec313ba2a19fd3d5bba701f8e842bb15ca391334f91024b9dc63b1159ffc&ts=1502272801791)](https://greenkeeper.io/)
+
 ## API
 
 Check api documentation.
